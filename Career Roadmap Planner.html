@@ -1,0 +1,785 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Career Roadmap Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a transit-map roadmap. Profile rail on the left, the route for one role on the right. Amber = the route still ahead, teal = done. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --ink: #15233b;
+  --muted: #5b6678;
+  --line: #dde2ea;
+  --route: #c77d06;
+  --route-soft: #fbefd9;
+  --done: #0f766e;
+  --done-soft: #dcf1ee;
+  --warn: #b42318;
+  --warn-soft: #fde8e6;
+  --navy: #15335c;
+  --navy-soft: #e3eaf5;
+  --focus: #2b6cb0;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1520; --surface: #172030; --ink: #e8edf5; --muted: #9aa6b8; --line: #2a3546;
+    --route: #f0a531; --route-soft: #3a2c12; --done: #3cc0b0; --done-soft: #123532;
+    --warn: #ff8a7a; --warn-soft: #3d1c19; --navy: #9cc0f0; --navy-soft: #1d2d47; --focus: #7fb3ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1520; --surface: #172030; --ink: #e8edf5; --muted: #9aa6b8; --line: #2a3546;
+  --route: #f0a531; --route-soft: #3a2c12; --done: #3cc0b0; --done-soft: #123532;
+  --warn: #ff8a7a; --warn-soft: #3d1c19; --navy: #9cc0f0; --navy-soft: #1d2d47; --focus: #7fb3ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: 1.15rem; font-weight: 700; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Top bar */
+.top { background: var(--navy-soft); border-bottom: 1px solid var(--line); }
+.top .wrap { padding-block: 18px; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand svg { flex: none; }
+.brand h1 { font-size: 1.25rem; }
+.brand small { display: block; color: var(--muted); font-size: .8rem; font-family: var(--font-body); font-weight: 400; }
+.search { position: relative; flex: 1 1 320px; max-width: 560px; }
+.search input { width: 100%; padding: 11px 14px 11px 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.suggest { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgb(0 0 0 / .12); padding: 4px; margin: 0; list-style: none; }
+.suggest li button { width: 100%; text-align: left; background: none; border: 0; padding: 8px 10px; border-radius: 7px; display: flex; justify-content: space-between; gap: 10px; cursor: pointer; }
+.suggest li button:hover, .suggest li button.active { background: var(--navy-soft); }
+.suggest .hint { color: var(--muted); font-size: .82rem; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+.quick button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: .82rem; cursor: pointer; }
+.quick button[aria-pressed="true"] { background: var(--navy); color: var(--surface); border-color: var(--navy); }
+
+/* Shell */
+.shell { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 24px; padding-block: 24px 48px; align-items: start; }
+@media (max-width: 860px) { .shell { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+.profile { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 14px; }
+@media (max-width: 860px) { .profile { position: static; } }
+.field { display: grid; gap: 4px; }
+.field label { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.note { font-size: .8rem; color: var(--muted); }
+.example-tag { display: inline-block; font-size: .72rem; background: var(--route-soft); color: var(--route); border-radius: 999px; padding: 2px 9px; font-weight: 600; }
+.credit-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.credit-bar span { display: block; height: 100%; background: var(--done); }
+.btn { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: .85rem; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--navy); color: var(--surface); border-color: var(--navy); }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
+
+/* Role hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.soc { overflow-wrap: anywhere; }
+.hero-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.hero h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); }
+.soc { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+.star { display: inline-flex; align-items: center; gap: 6px; }
+.star[aria-pressed="true"] { background: var(--route-soft); border-color: var(--route); color: var(--route); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
+.stat { padding: 12px 14px 4px 0; display: grid; gap: 2px; align-content: start; }
+.stat + .stat { padding-left: 14px; border-left: 1px solid var(--line); }
+.stat .v { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; }
+.stat .s { font-size: .8rem; color: var(--muted); }
+@media (max-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } .stat:nth-child(3) { padding-left: 0; border-left: 0; } .stat:nth-child(n+3) { border-top: 1px solid var(--line); } }
+.payrange { position: relative; height: 6px; background: var(--line); border-radius: 999px; margin: 6px 0 2px; }
+.payrange span { position: absolute; top: 0; bottom: 0; background: var(--navy); border-radius: 999px; opacity: .55; }
+.payrange i { position: absolute; top: -3px; width: 3px; height: 12px; background: var(--navy); border-radius: 2px; }
+.companies { display: flex; flex-wrap: wrap; gap: 6px; }
+.companies span { border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; font-size: .85rem; background: var(--bg); }
+
+.verdict { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 14px 16px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 11px; font-size: .82rem; font-weight: 600; white-space: nowrap; }
+.pill.ok { background: var(--done-soft); color: var(--done); }
+.pill.late { background: var(--route-soft); color: var(--route); }
+.pill.far { background: var(--warn-soft); color: var(--warn); }
+.ring { --p: 0; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: conic-gradient(var(--done) calc(var(--p) * 1%), var(--line) 0); }
+.ring span { width: 50px; height: 50px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: .95rem; }
+.verdict p { margin: 0; flex: 1 1 260px; }
+
+/* Two-up section grid */
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 1080px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+
+/* Gap list */
+.group + .group { margin-top: 14px; }
+.group h3 { font-size: .78rem; font-family: var(--font-body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 4px; }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); }
+.item input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--done); cursor: pointer; }
+.item .name { font-weight: 500; }
+.item .meta { font-size: .8rem; color: var(--muted); }
+.item.is-done .name { text-decoration: line-through; text-decoration-color: var(--done); color: var(--muted); }
+.tag { font-size: .72rem; font-weight: 600; border-radius: 5px; padding: 2px 7px; white-space: nowrap; }
+.tag.gap { background: var(--route-soft); color: var(--route); }
+.tag.major { background: var(--navy-soft); color: var(--navy); }
+.tag.done { background: var(--done-soft); color: var(--done); }
+.tag.req { background: var(--warn-soft); color: var(--warn); }
+.tag.rec { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+
+/* Route */
+.route { list-style: none; margin: 0; padding: 0; }
+.term { position: relative; padding: 0 0 16px 30px; }
+.term::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: -6px; width: 4px; background: var(--route); border-radius: 2px; }
+.term:last-child::before { display: none; }
+.term::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 4px solid var(--route); box-sizing: border-box; }
+.term.summer::after { width: 12px; height: 12px; left: 4px; top: 4px; border-width: 3px; }
+.term.extra::after { border-color: var(--warn); }
+.term.extra::before { background: repeating-linear-gradient(var(--warn) 0 6px, transparent 6px 10px); }
+.term.goal::after { background: var(--route); width: 20px; height: 20px; left: 0; top: 0; }
+.term h3 { font-size: .95rem; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.term h3 small { font-family: var(--font-mono); font-weight: 400; font-size: .75rem; color: var(--muted); }
+.term ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: .86rem; }
+.term li { display: flex; gap: 6px; align-items: baseline; }
+.term li .mono { font-size: .75rem; color: var(--muted); }
+.term .empty { color: var(--muted); font-size: .85rem; }
+
+/* Cost table */
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: left; padding: 7px 8px 7px 0; border-top: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: .78rem; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; padding-right: 0; white-space: nowrap; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+.scroll { overflow-x: auto; }
+
+/* Guidance */
+.hooks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.hook { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.hook .when { font-family: var(--font-mono); font-size: .72rem; background: var(--navy-soft); color: var(--navy); padding: 2px 7px; border-radius: 5px; white-space: nowrap; margin-top: 1px; }
+.clubs { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.clubs li { display: grid; gap: 1px; }
+.clubs li span { font-size: .82rem; color: var(--muted); }
+.locked { color: var(--muted); display: flex; gap: 10px; align-items: flex-start; }
+.prep { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+/* Compare */
+.cmp th, .cmp td { padding-right: 14px; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp .best { color: var(--done); font-weight: 700; }
+.empty-state { color: var(--muted); font-size: .9rem; }
+
+footer { color: var(--muted); font-size: .8rem; padding-bottom: 32px; }
+footer p { max-width: 75ch; margin: 0 0 6px; }
+@media (prefers-reduced-motion: no-preference) { .ring { transition: background .3s; } .credit-bar span { transition: width .3s; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M5 27 C 12 27, 10 8, 18 8 S 26 20, 29 7" fill="none" stroke="var(--route)" stroke-width="3.5" stroke-linecap="round"/><circle cx="5" cy="27" r="4" fill="var(--surface)" stroke="var(--done)" stroke-width="3"/><circle cx="29" cy="7" r="4" fill="var(--route)"/></svg>
+      <h1>Career Roadmap Planner<small>From a job title to a semester-by-semester route</small></h1>
+    </div>
+    <div class="search" role="combobox" aria-expanded="false" aria-haspopup="listbox" id="search-box">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="q" type="search" autocomplete="off" placeholder='Search a job title, e.g. "Data analyst"' aria-label="Target job title" aria-controls="suggest">
+      <ul class="suggest" id="suggest" role="listbox" hidden></ul>
+    </div>
+    <div class="quick" id="quick" aria-label="Pick a role"></div>
+  </div>
+</header>
+
+<div class="wrap shell">
+  <aside class="panel profile" aria-label="Your profile">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <h2>Your profile</h2>
+      <span class="example-tag" id="example-tag">Example student</span>
+    </div>
+    <div class="field">
+      <label for="p-major">Major</label>
+      <select id="p-major"></select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="p-year">Year</label>
+        <select id="p-year"><option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option></select>
+      </div>
+      <div class="field">
+        <label for="p-sem">Semesters left</label>
+        <input id="p-sem" type="number" min="0" max="12" step="1">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="p-credits">Credits done</label>
+        <input id="p-credits" type="number" min="0" max="200" step="1">
+      </div>
+      <div class="field">
+        <label for="p-tuition">Tuition / credit</label>
+        <input id="p-tuition" type="number" min="0" max="3000" step="10">
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between" class="note"><span id="credit-label"></span><span class="mono" id="credit-pct"></span></div>
+      <div class="credit-bar"><span id="credit-fill"></span></div>
+    </div>
+    <div class="field">
+      <label for="p-import">Transcript or resume (optional)</label>
+      <input id="p-import" type="file" accept=".txt,.csv,.pdf" disabled>
+      <span class="note">Import is planned for a later version. For now, tick completed courses and certs in the gap list.</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="reset" type="button">Reset to example</button>
+    </div>
+    <p class="note" style="margin:0">Your profile and progress are saved in this browser only.</p>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<footer class="wrap">
+  <p><strong>About the data.</strong> This prototype runs on built-in sample data, not live API calls. Pay and growth figures are modeled on BLS Occupational Employment and Wage Statistics (May 2023 medians) and 2023–33 employment projections; skills, degrees and certifications follow O*NET-style requirements. Company lists, course codes, cert prices and campus clubs are illustrative examples for a typical U.S. public university.</p>
+  <p>Planning rules: 120 credits to graduate, 15 credits a normal term, 18 max, and about 20% of remaining credits treated as free electives that can absorb gap courses.</p>
+</footer>
+
+<script>
+/* ---------- Sample data (stands in for the Job data cache in the architecture) ---------- */
+const MAJORS = ["Accounting","Biology","Business Administration","Communications","Computer Engineering","Computer Science","Criminal Justice","Cybersecurity","Economics","Electrical Engineering","Finance","Graphic Design","Information Systems","Kinesiology","Marketing","Mathematics","Mechanical Engineering","Nursing","Physics","Psychology","Statistics","Undeclared"];
+
+const C = (name, cr, skill, covers) => ({ name, cr, skill, covers });
+const COURSES = {
+  "STAT 200": C("Intro to Statistics", 3, "Probability, descriptive stats", ["Statistics","Mathematics","Economics","Psychology","Business Administration","Finance","Accounting","Marketing","Biology","Kinesiology","Nursing","Information Systems"]),
+  "STAT 310": C("Applied Regression", 3, "Regression, A/B test design", ["Statistics","Economics","Mathematics"]),
+  "IS 330":   C("Database Systems & SQL", 3, "SQL, data modeling", ["Information Systems","Computer Science","Cybersecurity","Computer Engineering"]),
+  "CS 171":   C("Python for Data Analysis", 3, "Python, pandas", ["Computer Science","Statistics","Computer Engineering"]),
+  "IS 360":   C("Data Visualization", 3, "Dashboards in Tableau / Power BI", ["Information Systems"]),
+  "CS 150":   C("Intro to Programming", 4, "Programming fundamentals", ["Computer Science","Computer Engineering","Information Systems","Cybersecurity","Electrical Engineering","Mechanical Engineering","Mathematics","Physics","Statistics"]),
+  "CS 201":   C("Data Structures", 4, "Lists, trees, hashing, Big-O", ["Computer Science","Computer Engineering","Cybersecurity"]),
+  "CS 310":   C("Algorithms", 3, "Algorithm design for interviews", ["Computer Science"]),
+  "CS 350":   C("Software Engineering", 3, "Git, testing, team projects", ["Computer Science","Computer Engineering"]),
+  "CS 360":   C("Operating Systems", 3, "Processes, memory, concurrency", ["Computer Science","Computer Engineering","Cybersecurity"]),
+  "CS 280":   C("Web Development", 3, "HTML, JavaScript, APIs", ["Computer Science","Information Systems"]),
+  "NET 220":  C("Computer Networks", 3, "TCP/IP, routing, firewalls", ["Cybersecurity","Information Systems","Computer Engineering"]),
+  "SEC 300":  C("Intro to Information Security", 3, "Threats, controls, risk", ["Cybersecurity","Information Systems"]),
+  "SEC 320":  C("Linux System Administration", 3, "Linux, shell scripting", ["Cybersecurity"]),
+  "SEC 410":  C("Ethical Hacking & Pen Testing", 3, "Offensive security tools", ["Cybersecurity"]),
+  "BIO 221":  C("Anatomy & Physiology I", 4, "Body systems", ["Nursing","Kinesiology","Biology"]),
+  "BIO 222":  C("Anatomy & Physiology II", 4, "Body systems", ["Nursing","Kinesiology","Biology"]),
+  "BIO 250":  C("Microbiology", 4, "Infection control", ["Nursing","Biology"]),
+  "NUR 330":  C("Pharmacology", 3, "Medication administration", ["Nursing"]),
+  "NUR 400":  C("Clinical Practicum", 6, "Supervised patient care", ["Nursing"]),
+  "CHEM 101": C("General Chemistry I", 4, "Lab science prerequisite", ["Biology","Mechanical Engineering","Electrical Engineering","Physics","Kinesiology"]),
+  "CHEM 102": C("General Chemistry II", 4, "Lab science prerequisite", ["Biology"]),
+  "PHYS 201": C("Physics I", 4, "Mechanics", ["Physics","Mechanical Engineering","Electrical Engineering","Computer Engineering","Biology"]),
+  "PHYS 202": C("Physics II", 4, "Electricity & magnetism", ["Physics","Mechanical Engineering","Electrical Engineering","Computer Engineering","Biology"]),
+  "PSY 101":  C("Intro to Psychology", 3, "Behavior basics", ["Psychology","Nursing","Kinesiology","Communications","Marketing"]),
+  "PSY 310":  C("Research Methods", 3, "Surveys, interviews, study design", ["Psychology","Communications","Marketing","Kinesiology"]),
+  "KIN 300":  C("Exercise Physiology", 3, "Movement & rehab science", ["Kinesiology"]),
+  "ACC 201":  C("Financial Accounting", 3, "Financial statements", ["Accounting","Finance","Business Administration","Marketing"]),
+  "ACC 301":  C("Intermediate Accounting I", 3, "GAAP reporting", ["Accounting"]),
+  "ACC 302":  C("Intermediate Accounting II", 3, "GAAP reporting", ["Accounting"]),
+  "ACC 350":  C("Accounting Information Systems", 3, "ERP, internal controls", ["Accounting","Information Systems"]),
+  "ACC 410":  C("Auditing", 3, "Audit procedures", ["Accounting"]),
+  "ACC 420":  C("Federal Taxation", 3, "Individual & business tax", ["Accounting"]),
+  "ECON 201": C("Microeconomics", 3, "Markets, pricing", ["Economics","Finance","Accounting","Business Administration","Marketing"]),
+  "FIN 300":  C("Corporate Finance", 3, "Valuation, capital budgeting", ["Finance","Accounting","Business Administration"]),
+  "FIN 340":  C("Investments", 3, "Portfolio theory, equities", ["Finance"]),
+  "FIN 360":  C("Financial Modeling in Excel", 3, "3-statement models, DCF", ["Finance"]),
+  "DES 210":  C("Visual Design Fundamentals", 3, "Layout, type, color", ["Graphic Design"]),
+  "DES 320":  C("Interaction Design Studio", 3, "Flows, wireframes", ["Graphic Design"]),
+  "DES 340":  C("Prototyping in Figma", 2, "Clickable prototypes", ["Graphic Design"]),
+  "HCI 300":  C("Human-Computer Interaction", 3, "Usability, accessibility", ["Information Systems","Graphic Design"]),
+  "EGR 110":  C("CAD & Engineering Graphics", 2, "SolidWorks modeling", ["Mechanical Engineering"]),
+  "EGR 201":  C("Statics", 3, "Force analysis", ["Mechanical Engineering"]),
+  "EGR 202":  C("Dynamics", 3, "Motion analysis", ["Mechanical Engineering"]),
+  "MATH 230": C("Differential Equations", 3, "Engineering math", ["Mathematics","Mechanical Engineering","Electrical Engineering","Computer Engineering","Physics"]),
+  "ME 310":   C("Thermodynamics", 3, "Energy systems", ["Mechanical Engineering"]),
+  "ME 320":   C("Fluid Mechanics", 3, "Flow analysis", ["Mechanical Engineering"]),
+  "ME 410":   C("Machine Design", 3, "Component design", ["Mechanical Engineering"]),
+  "MKT 300":  C("Marketing Research", 3, "Survey & market sizing", ["Marketing"]),
+  "MKT 310":  C("Consumer Behavior", 3, "Buyer psychology", ["Marketing"]),
+  "MKT 380":  C("Digital Analytics", 3, "Web analytics, attribution", ["Marketing"])
+};
+
+const K = (name, issuer, cost, hrs) => ({ name, issuer, cost, hrs });
+const CERTS = {
+  gda:    K("Google Data Analytics Certificate", "Coursera", 294, 180),
+  pl300:  K("Power BI Data Analyst (PL-300)", "Microsoft", 165, 60),
+  tds:    K("Tableau Desktop Specialist", "Tableau", 100, 40),
+  awscp:  K("AWS Certified Cloud Practitioner", "Amazon Web Services", 100, 30),
+  awsdev: K("AWS Certified Developer – Associate", "Amazon Web Services", 150, 80),
+  secplus:K("CompTIA Security+", "CompTIA", 404, 120),
+  netplus:K("CompTIA Network+", "CompTIA", 369, 100),
+  cc:     K("Certified in Cybersecurity (CC)", "ISC2", 199, 40),
+  nclex:  K("NCLEX-RN exam + state license", "NCSBN", 350, 150),
+  bls:    K("BLS Provider (CPR)", "American Heart Association", 65, 4),
+  cfa1:   K("CFA Level I exam", "CFA Institute", 1290, 300),
+  bmc:    K("Bloomberg Market Concepts", "Bloomberg", 149, 10),
+  cpa:    K("CPA exam (4 sections)", "AICPA / state board", 1400, 350),
+  gux:    K("Google UX Design Certificate", "Coursera", 294, 200),
+  fe:     K("FE Mechanical exam (EIT)", "NCEES", 225, 120),
+  cswa:   K("SolidWorks Associate (CSWA)", "Dassault Systèmes", 99, 20),
+  gre:    K("GRE General Test", "ETS", 220, 60),
+  npte:   K("NPTE licensure exam", "FSBPT", 485, 200),
+  gaiq:   K("Google Analytics Certification", "Google", 0, 15),
+  hubspot:K("HubSpot Inbound Marketing", "HubSpot", 0, 6)
+};
+
+/* Roles: pay = [25th pct, median, 75th pct]. path = extra program when major is not a direct fit. */
+const ROLES = [
+  { id:"data-analyst", title:"Data Analyst", aliases:["analyst","business intelligence","bi analyst","data"], soc:"O*NET 15-2051.01 · Business Intelligence Analysts", pay:[64000,83640,108000], growth:23,
+    degree:"Bachelor's", typical:"4 yrs + 1 cert · ~$300 beyond tuition",
+    companies:["Deloitte","Amazon","UnitedHealth Group","JPMorgan Chase","Accenture","Capital One"],
+    direct:["Statistics","Information Systems","Computer Science","Mathematics","Economics"], adjacent:["Business Administration","Finance","Accounting","Psychology","Marketing"],
+    courses:["STAT 200","IS 330","CS 171","IS 360","STAT 310"],
+    certs:[["pl300","required"],["gda","recommended"],["tds","recommended"]],
+    milestones:[["Portfolio: 2 public dashboards or notebooks", 40],["Analytics internship", 400]],
+    clubs:[["Data Science Club","Kaggle nights and project teams"],["Analytics & BI Society","Case competitions with local employers"],["Women in Data","Mentoring and speaker series"]],
+    prep:["Write a SQL query using a window function to rank sales by region.","A key metric dropped 10% overnight. Walk through how you would investigate.","Present one portfolio dashboard in 3 minutes: question, data, finding, recommendation.","Explain the difference between correlation and causation with an example from your project."] },
+  { id:"software-developer", title:"Software Developer", aliases:["software engineer","swe","programmer","developer","coder","web developer"], soc:"O*NET 15-1252.00 · Software Developers", pay:[101000,132270,167000], growth:17,
+    degree:"Bachelor's", typical:"4 yrs · cert optional",
+    companies:["Amazon","Microsoft","Google","Oracle","IBM","Capital One"],
+    direct:["Computer Science","Computer Engineering"], adjacent:["Information Systems","Mathematics","Electrical Engineering","Cybersecurity","Physics"],
+    courses:["CS 150","CS 201","CS 310","IS 330","CS 350","CS 360","CS 280"],
+    certs:[["awscp","recommended"],["awsdev","recommended"]],
+    milestones:[["Software engineering internship", 480],["2 shipped projects on GitHub", 120]],
+    clubs:[["ACM Student Chapter","Tech talks and interview practice"],["Hackathon Team","Build something in 36 hours"],["Open Source Club","First pull requests with mentors"]],
+    prep:["Reverse a linked list, then explain its time and space complexity.","Design a URL shortener. What would you store and how would it scale?","Tell me about a bug you found in your own code and how you fixed it.","Walk through one of your GitHub projects and a decision you would change."] },
+  { id:"cybersecurity-analyst", title:"Cybersecurity Analyst", aliases:["information security analyst","security","infosec","soc analyst","cyber"], soc:"O*NET 15-1212.00 · Information Security Analysts", pay:[92000,120360,152000], growth:33,
+    degree:"Bachelor's", typical:"4 yrs + Security+ · ~$400 beyond tuition",
+    companies:["Booz Allen Hamilton","Leidos","CrowdStrike","Deloitte","Lockheed Martin","Palo Alto Networks"],
+    direct:["Cybersecurity","Information Systems","Computer Science"], adjacent:["Computer Engineering","Electrical Engineering","Mathematics","Criminal Justice"],
+    courses:["CS 150","NET 220","SEC 300","SEC 320","SEC 410"],
+    certs:[["secplus","required"],["netplus","recommended"],["cc","recommended"]],
+    milestones:[["Home lab write-up (SIEM or firewall)", 40],["SOC or IT internship", 400]],
+    clubs:[["Capture the Flag Team","Weekly CTF challenges"],["Cyber Defense Club","Collegiate Cyber Defense Competition"],["ISSA Student Chapter","Networking with local security pros"]],
+    prep:["Walk through what happens when a user clicks a phishing link.","Explain the CIA triad with a real breach as an example.","How would you triage 500 alerts in a SIEM on a Monday morning?","Describe the setup and one finding from your home lab."] },
+  { id:"registered-nurse", title:"Registered Nurse", aliases:["nurse","rn","nursing","bsn"], soc:"O*NET 29-1141.00 · Registered Nurses", pay:[71000,86070,104000], growth:6,
+    degree:"BSN + RN license", typical:"4 yrs BSN + NCLEX · ~$400 in exams",
+    companies:["HCA Healthcare","Kaiser Permanente","Mayo Clinic","Cleveland Clinic","Ascension"],
+    direct:["Nursing"], adjacent:["Biology","Kinesiology","Psychology"],
+    path:{ name:"Accelerated BSN (second degree)", months:15, cost:52000 },
+    courses:["BIO 221","BIO 222","BIO 250","PSY 101","STAT 200","NUR 330","NUR 400"],
+    certs:[["nclex","required"],["bls","required"]],
+    milestones:[["Hospital volunteer or CNA hours", 100]],
+    clubs:[["Student Nurses Association","Conferences and NCLEX prep"],["Pre-Health Society","Shadowing and application advice"],["Campus EMS","Hands-on patient contact"]],
+    prep:["Describe a time you advocated for someone who could not speak for themselves.","How do you prioritize four patients who all need you at once?","Tell me about a clinical mistake you saw or made and what changed after.","Why this unit, and what do you know about its patient population?"] },
+  { id:"financial-analyst", title:"Financial Analyst", aliases:["finance","investment analyst","fp&a","banking","analyst"], soc:"O*NET 13-2051.00 · Financial and Investment Analysts", pay:[75000,99010,134000], growth:9,
+    degree:"Bachelor's", typical:"4 yrs · CFA L1 optional (~$1,300)",
+    companies:["JPMorgan Chase","Goldman Sachs","Bank of America","Wells Fargo","Fidelity","Morgan Stanley"],
+    direct:["Finance","Economics","Accounting"], adjacent:["Business Administration","Mathematics","Statistics"],
+    courses:["ACC 201","ECON 201","FIN 300","FIN 340","FIN 360","STAT 200"],
+    certs:[["bmc","recommended"],["cfa1","recommended"]],
+    milestones:[["Summer analyst internship", 400],["Stock pitch or equity research report", 30]],
+    clubs:[["Student Investment Fund","Manage a real portfolio"],["Finance Club","Trek to New York and alumni panels"],["Economics Society","Fed Challenge team"]],
+    prep:["Walk me through the three financial statements and how they link.","How would you value a company with no profits yet?","Pitch me a stock in two minutes.","What happened in the markets this week that matters to our clients?"] },
+  { id:"accountant", title:"Accountant (CPA track)", aliases:["accountant","cpa","auditor","tax","accounting"], soc:"O*NET 13-2011.00 · Accountants and Auditors", pay:[63000,79880,103000], growth:6,
+    degree:"Bachelor's + 150 credits for CPA", typical:"4–5 yrs + CPA · ~$1,400 in exams",
+    companies:["Deloitte","PwC","EY","KPMG","Grant Thornton","RSM"],
+    direct:["Accounting"], adjacent:["Finance","Business Administration","Economics","Information Systems"],
+    extraCredits:{ total:150, name:"150-hour CPA requirement (MAcc or extra credits)" },
+    courses:["ACC 201","ACC 301","ACC 302","ACC 350","ACC 410","ACC 420"],
+    certs:[["cpa","required"]],
+    milestones:[["Busy-season audit or tax internship", 400],["VITA free tax prep volunteer", 40]],
+    clubs:[["Beta Alpha Psi","Honor society with Big Four recruiting"],["Accounting Society","Meet the Firms night"],["VITA Program","Prepare real tax returns"]],
+    prep:["Why audit versus tax?","Explain revenue recognition under ASC 606 in plain language.","Tell me about a time you found an error others missed.","How would you handle a client who pushes back on an adjustment?"] },
+  { id:"ux-designer", title:"UX Designer", aliases:["ux","ui","product designer","designer","user experience"], soc:"O*NET 15-1255.00 · Web and Digital Interface Designers", pay:[68000,92750,124000], growth:8,
+    degree:"Bachelor's + portfolio", typical:"4 yrs + portfolio · cert optional",
+    companies:["Adobe","Salesforce","IBM","Meta","Intuit","Accenture Song"],
+    direct:["Graphic Design","Psychology","Computer Science","Information Systems"], adjacent:["Communications","Marketing","Business Administration"],
+    courses:["DES 210","HCI 300","PSY 310","DES 320","DES 340"],
+    certs:[["gux","recommended"]],
+    milestones:[["Portfolio with 3 case studies", 120],["UX internship or client project", 300]],
+    clubs:[["UX Design Club","Portfolio reviews"],["AIGA Student Group","Design talks and critique"],["Hackathon Team","Design on a dev team"]],
+    prep:["Walk me through one case study: problem, research, iterations, outcome.","How do you decide what to test with users first?","Tell me about feedback you disagreed with and what you did.","Critique the onboarding of an app you use daily."] },
+  { id:"mechanical-engineer", title:"Mechanical Engineer", aliases:["engineer","mechanical","me","design engineer"], soc:"O*NET 17-2141.00 · Mechanical Engineers", pay:[79000,99510,124000], growth:11,
+    degree:"ABET-accredited BS in ME", typical:"4 yrs + FE exam · ~$225",
+    companies:["Boeing","Lockheed Martin","GE Aerospace","Tesla","Caterpillar","General Motors"],
+    direct:["Mechanical Engineering"], adjacent:["Electrical Engineering","Physics","Computer Engineering"],
+    path:{ name:"MS in ME with leveling courses", months:24, cost:58000 },
+    courses:["MATH 230","PHYS 201","EGR 110","EGR 201","EGR 202","ME 310","ME 320","ME 410"],
+    certs:[["fe","recommended"],["cswa","recommended"]],
+    milestones:[["Co-op or engineering internship", 480],["Design team build season", 150]],
+    clubs:[["ASME Student Section","Industry tours"],["SAE Baja / Formula","Build a race car"],["Engineers Without Borders","Field projects"]],
+    prep:["Walk me through a part you designed and how you chose its material.","How would you estimate the heat lost through this window?","Tell me about a test that failed and what you changed.","Explain stress versus strain to a non-engineer."] },
+  { id:"physical-therapist", title:"Physical Therapist", aliases:["pt","physical therapy","dpt","therapist","rehab"], soc:"O*NET 29-1123.00 · Physical Therapists", pay:[85000,99710,117000], growth:14,
+    degree:"Doctor of Physical Therapy (DPT)", typical:"4 yrs + 3-yr DPT · ~$110k",
+    companies:["ATI Physical Therapy","Select Medical","Kaiser Permanente","HCA Healthcare","Hanger Clinic"],
+    direct:["Kinesiology","Biology"], adjacent:["Psychology","Nursing"],
+    grad:{ name:"Doctor of Physical Therapy (DPT)", months:36, cost:110000 },
+    courses:["BIO 221","BIO 222","CHEM 101","CHEM 102","PHYS 201","PHYS 202","STAT 200","PSY 101","KIN 300"],
+    certs:[["gre","recommended"],["npte","required"]],
+    milestones:[["100 PT observation hours", 100],["PTCAS application", 20]],
+    clubs:[["Pre-PT Club","Application workshops"],["Adaptive Sports Volunteers","Work with athletes with disabilities"],["Pre-Health Society","Shadowing contacts"]],
+    prep:["Why PT and not another health profession?","Describe something you learned from your observation hours.","How would you motivate a patient who stops doing home exercises?","Tell me about a time you worked with someone very different from you."] },
+  { id:"market-research-analyst", title:"Market Research Analyst", aliases:["marketing","market research","insights","marketing analyst","consumer insights"], soc:"O*NET 13-1161.00 · Market Research Analysts", pay:[55000,74680,103000], growth:8,
+    degree:"Bachelor's", typical:"4 yrs · free certs",
+    companies:["Nielsen","Ipsos","Kantar","Procter & Gamble","PepsiCo","Amazon"],
+    direct:["Marketing","Statistics","Economics","Psychology"], adjacent:["Business Administration","Communications","Mathematics"],
+    courses:["STAT 200","PSY 310","MKT 300","MKT 310","MKT 380","IS 360"],
+    certs:[["gaiq","recommended"],["hubspot","recommended"]],
+    milestones:[["Run a survey study end to end", 40],["Marketing or insights internship", 400]],
+    clubs:[["American Marketing Association","Case competitions"],["Consulting Club","Pro bono client projects"],["Psychology Research Lab","Run real studies"]],
+    prep:["How would you size the market for a new campus food app?","Design a 10-question survey and say what bias you would watch for.","Tell me about an insight that changed a decision.","Explain significance testing to a brand manager."] }
+];
+const ROLE = Object.fromEntries(ROLES.map(r => [r.id, r]));
+
+/* ---------- State (stands in for the Student database) ---------- */
+const KEY = "roadmap.v1";
+const EXAMPLE = { major:"Information Systems", year:"Junior", credits:68, semLeft:3, tuition:420, role:"data-analyst", saved:["data-analyst","cybersecurity-analyst","ux-designer"], done:["STAT 200","IS 330","CS 150"], example:true };
+let S = load();
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return { ...structuredClone(EXAMPLE), ...JSON.parse(raw) }; } catch (e) {}
+  return structuredClone(EXAMPLE);
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------- Roadmap engine (matches job data to the student) ---------- */
+const TOTAL = 120, PACE = 15, MAX = 18;
+const TERM_NAMES = ["Spring","Fall"];
+function termLabels(n) {
+  // Today is in Fall 2026, so the next term to register for is Spring 2027.
+  const out = []; let y = 2027, t = 0;
+  for (let i = 0; i < n; i++) { out.push({ name: `${TERM_NAMES[t]} ${y}`, season: TERM_NAMES[t] }); if (t === 1) y++; t = 1 - t; }
+  return out;
+}
+function fit(role, major) {
+  if (role.direct.includes(major)) return "direct";
+  if (role.adjacent.includes(major)) return "adjacent";
+  return "other";
+}
+function analyze(role, p) {
+  const done = new Set(p.done);
+  const f = fit(role, p.major);
+  const courses = role.courses.map(code => {
+    const c = COURSES[code];
+    const status = done.has(code) ? "done" : c.covers.includes(p.major) ? "major" : "gap";
+    return { code, ...c, status };
+  });
+  const certs = role.certs.map(([id, level]) => ({ id, ...CERTS[id], level, status: done.has(id) ? "done" : "todo" }));
+  const ms = role.milestones.map(([name, hrs], i) => { const id = role.id + ":m" + i; return { id, name, hrs, status: done.has(id) ? "done" : "todo" }; });
+
+  // Readiness: weighted share of the role's checklist already done.
+  const w = [...courses.map(c => [1, c.status === "done"]), ...certs.map(c => [c.level === "required" ? 2 : 1, c.status === "done"]), ...ms.map(m => [1, m.status === "done"])];
+  const readiness = Math.round(100 * w.reduce((a, [x, d]) => a + (d ? x : 0), 0) / w.reduce((a, [x]) => a + x, 0));
+
+  const remaining = Math.max(0, TOTAL - p.credits);
+  const semLeft = Math.max(0, p.semLeft);
+  const offPath = role.path && f !== "direct";
+  // Gap courses for off-path majors are absorbed by the extra program, not the current degree.
+  const gapCourses = offPath ? [] : courses.filter(c => c.status === "gap");
+  const gapCr = gapCourses.reduce((a, c) => a + c.cr, 0);
+  const electiveRoom = Math.floor(remaining * 0.2 / 3) * 3;
+  let extraCr = Math.max(0, gapCr - electiveRoom);
+  let note150 = null;
+  if (role.extraCredits) { const need = Math.max(0, role.extraCredits.total - Math.max(TOTAL, p.credits + remaining + extraCr)); if (need > 0) { note150 = { cr: need, name: role.extraCredits.name }; } }
+  const load = remaining + extraCr;
+  const extraSem = semLeft === 0 ? Math.ceil(load / PACE) : Math.max(0, Math.ceil((load - MAX * semLeft) / PACE));
+  const perSem = semLeft > 0 ? load / semLeft : 0;
+  const after = offPath ? role.path : role.grad || null;
+  const extra150Sem = note150 ? Math.ceil(note150.cr / PACE) : 0;
+  const totalSem = semLeft + extraSem + extra150Sem;
+  const months = totalSem * 4 + (after ? after.months : 0);
+
+  const certsTodo = certs.filter(c => c.status !== "done");
+  const reqCertCost = certsTodo.filter(c => c.level === "required").reduce((a, c) => a + c.cost, 0);
+  const recCertCost = certsTodo.filter(c => c.level === "recommended").reduce((a, c) => a + c.cost, 0);
+  const cost = {
+    extraCourses: extraCr * p.tuition,
+    cpa: note150 ? note150.cr * p.tuition : 0,
+    program: after ? after.cost : 0,
+    reqCerts: reqCertCost,
+    recCerts: recCertCost
+  };
+  cost.total = cost.extraCourses + cost.cpa + cost.program + cost.reqCerts;
+
+  let verdict;
+  if (after) verdict = { cls: "far", text: offPath ? `Needs ${after.name}` : `Plus ${after.name}` };
+  else if (extraSem > 0) verdict = { cls: "late", text: `+${extraSem} semester${extraSem > 1 ? "s" : ""} past your plan` };
+  else if (note150) verdict = { cls: "late", text: `On time for the degree, +${note150.cr} credits for CPA` };
+  else verdict = { cls: "ok", text: "Fits in your remaining semesters" };
+
+  return { role, f, courses, certs, ms, readiness, remaining, gapCourses, gapCr, electiveRoom, extraCr, extraSem, perSem, after, offPath, note150, extra150Sem, totalSem, months, cost, verdict, semLeft };
+}
+
+function plan(a) {
+  // Spread gap courses (then unfinished in-major role courses) across terms; certs and milestones go in summers and the final term.
+  const n = Math.max(1, a.semLeft + a.extraSem);
+  const terms = termLabels(n).map((t, i) => ({ ...t, items: [], extra: i >= a.semLeft }));
+  const majorTodo = a.offPath ? [] : a.courses.filter(c => c.status === "major");
+  const queue = [...a.gapCourses.map(c => ({ kind: "gap", c })), ...majorTodo.map(c => ({ kind: "major", c }))];
+  queue.forEach((q, i) => terms[i % n].items.push({ kind: q.kind, code: q.c.code, text: q.c.name, sub: q.c.cr + " cr" }));
+  const summers = [];
+  terms.forEach((t, i) => { if (t.season === "Spring" && i < n - 1) summers.push({ after: i }); });
+  const certs = a.certs.filter(c => c.status !== "done").sort((x, y) => (x.level === "required" ? -1 : 1) - (y.level === "required" ? -1 : 1));
+  const ms = a.ms.filter(m => m.status !== "done");
+  const post = [];
+  const out = [];
+  terms.forEach((t, i) => {
+    out.push({ type: "term", ...t });
+    const s = summers.find(s => s.after === i);
+    if (s) out.push({ type: "summer", name: "Summer " + t.name.split(" ")[1], items: [], extra: t.extra });
+  });
+  const summerSlots = out.filter(x => x.type === "summer");
+  // Internships go in the last summer; certs fill summers from the latest backwards, with leftovers in the final term.
+  ms.forEach(m => {
+    const slot = /internship|co-op/i.test(m.name) && summerSlots.length ? summerSlots[summerSlots.length - 1] : out.filter(x => x.type === "term").at(-1);
+    slot.items.push({ kind: "ms", text: m.name, sub: m.hrs + " hrs" });
+  });
+  certs.forEach((c, i) => {
+    if (c.id === "npte" || c.id === "nclex") { if (a.after) post.push(c); else out.filter(x => x.type === "term").at(-1).items.push({ kind: "cert", level: c.level, text: c.name, sub: "$" + c.cost.toLocaleString() }); return; }
+    const slots = summerSlots.length ? summerSlots : [];
+    const slot = i < slots.length ? slots[slots.length - 1 - i] : out.filter(x => x.type === "term").at(-1);
+    slot.items.push({ kind: "cert", level: c.level, text: c.name, sub: "$" + c.cost.toLocaleString() });
+  });
+  if (a.after) out.push({ type: "program", name: a.after.name, sub: `${a.after.months} months`, items: post.map(c => ({ kind: "cert", level: c.level, text: c.name, sub: "$" + c.cost.toLocaleString() })) });
+  else if (a.note150) out.push({ type: "program", name: "Fifth year for 150 credits", sub: `${a.note150.cr} credits`, items: [] });
+  out.push({ type: "goal", name: "Qualified: " + a.role.title, items: [] });
+  return out;
+}
+
+/* ---------- Rendering ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ch]));
+const money = n => "$" + Math.round(n).toLocaleString();
+const k = n => "$" + Math.round(n / 1000) + "k";
+const dur = m => { if (m < 12) return m + " mo"; const y = Math.round(m / 6) / 2; return y + (y === 1 ? " yr" : " yrs"); };
+
+function renderProfile() {
+  const sel = $("#p-major");
+  if (!sel.options.length) MAJORS.forEach(m => sel.add(new Option(m, m)));
+  sel.value = S.major; $("#p-year").value = S.year; $("#p-sem").value = S.semLeft; $("#p-credits").value = S.credits; $("#p-tuition").value = S.tuition;
+  const pct = Math.min(100, Math.round(100 * S.credits / TOTAL));
+  $("#credit-fill").style.width = pct + "%";
+  $("#credit-label").textContent = `${S.credits} of ${TOTAL} credits`;
+  $("#credit-pct").textContent = pct + "%";
+  $("#example-tag").hidden = !S.example;
+}
+
+function renderQuick() {
+  $("#quick").innerHTML = ROLES.map(r => `<button type="button" data-role="${r.id}" aria-pressed="${r.id === S.role}">${esc(r.title)}</button>`).join("");
+}
+
+function itemRow(id, name, meta, tag, checked) {
+  return `<label class="item ${checked ? "is-done" : ""}"><input type="checkbox" data-done="${esc(id)}" ${checked ? "checked" : ""}><span><span class="name">${name}</span><br><span class="meta">${meta}</span></span>${tag}</label>`;
+}
+
+function renderMain() {
+  const r = ROLE[S.role];
+  const a = analyze(r, S);
+  const [p25, med, p75] = r.pay;
+  const lo = 40000, hi = 180000, pos = v => ((v - lo) / (hi - lo) * 100).toFixed(1);
+  const fitText = { direct: `Your ${S.major} major is a direct path into this role.`, adjacent: `Your ${S.major} major is an adjacent path. You will need a few courses from outside it.`, other: `Your ${S.major} major is not a usual path into this role.` }[a.f];
+  const saved = S.saved.includes(r.id);
+
+  const courseTag = c => c.status === "done" ? `<span class="tag done">Done</span>` : c.status === "major" ? `<span class="tag major">In your major</span>` : a.offPath ? `<span class="tag major">In program</span>` : `<span class="tag gap">Gap · add</span>`;
+  const certTag = c => c.status === "done" ? `<span class="tag done">Done</span>` : c.level === "required" ? `<span class="tag req">Required</span>` : `<span class="tag rec">Recommended</span>`;
+  const gapCount = (a.offPath ? 0 : a.gapCourses.length) + a.certs.filter(c => c.status !== "done").length + a.ms.filter(m => m.status !== "done").length;
+
+  const route = plan(a).map(t => {
+    const items = t.items.length ? `<ul>${t.items.map(it => {
+      const tag = it.kind === "gap" ? `<span class="tag gap">Gap</span>` : it.kind === "major" ? `<span class="tag major">Major</span>` : it.kind === "cert" ? `<span class="tag ${it.level === "required" ? "req" : "rec"}">Cert</span>` : `<span class="tag rec">Experience</span>`;
+      return `<li>${tag}<span>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.text)} <span class="mono">${esc(it.sub)}</span></span></li>`;
+    }).join("")}</ul>` : (t.type === "term" ? `<p class="empty" style="margin:2px 0 0">Major and gen-ed requirements</p>` : "");
+    const cls = t.type === "summer" ? "summer" : t.type === "goal" ? "goal" : (t.extra || t.type === "program") ? "extra" : "";
+    const badge = t.type === "term" && t.extra ? `<span class="pill far" style="padding:1px 8px;font-size:.72rem">Extra term</span>` : "";
+    const sub = t.type === "program" ? `<small>${esc(t.sub)}</small>` : t.type === "term" ? `<small>${t.extra ? "" : Math.round(a.perSem) + " cr load"}</small>` : "";
+    return `<li class="term ${cls}"><h3>${esc(t.name)} ${sub} ${badge}</h3>${items}</li>`;
+  }).join("");
+
+  const costRows = [
+    a.extraCr ? [`${a.extraCr} credits of gap courses beyond your free electives`, a.cost.extraCourses] : null,
+    a.note150 ? [`${a.note150.cr} credits toward the ${a.note150.name}`, a.cost.cpa] : null,
+    a.after ? [`${a.after.name}, ${a.after.months} months (typical tuition)`, a.cost.program] : null,
+    a.cost.reqCerts ? ["Required certifications and exams", a.cost.reqCerts] : null
+  ].filter(Boolean);
+
+  const hooks = [];
+  if (a.gapCourses.length) hooks.push(["Before Nov 10", `Meet your advisor before Spring 2027 registration to fit <strong>${esc(a.gapCourses[0].code)} ${esc(a.gapCourses[0].name)}</strong>${a.gapCourses.length > 1 ? ` and ${a.gapCourses.length - 1} more gap course${a.gapCourses.length > 2 ? "s" : ""}` : ""} into your electives.`]);
+  if (a.extraSem > 0) hooks.push(["This term", `Your plan runs ${a.extraSem} term${a.extraSem > 1 ? "s" : ""} past expected graduation. Ask an advisor about summer courses, an 18-credit term, or a minor that counts these courses.`]);
+  if (a.offPath) hooks.push(["This term", `Book a Career Center appointment to compare your options for the ${esc(a.after.name)} and its prerequisites.`]);
+  if (r.grad) hooks.push(["By junior spring", `See the pre-health advisor about ${esc(r.grad.name)} prerequisites and application timing. Applications usually open the summer before your final year.`]);
+  if (a.note150) hooks.push(["Junior year", "Ask the accounting department about a combined BS/MAcc so the 150 credits fit in five years."]);
+  if (a.semLeft <= 3) hooks.push(["Before winter break", "Get a Career Center resume review and start applying for summer internships."]);
+  else hooks.push(["Each spring", "Check in with the Career Center about internships for the summer ahead."]);
+
+  const ready = a.readiness >= 70 || a.semLeft <= 1;
+
+  $("#main").innerHTML = `
+  <section class="panel hero" aria-labelledby="role-title">
+    <div class="hero-head">
+      <div><span class="label">Target role</span><h2 id="role-title">${esc(r.title)}</h2><div class="soc mono">${esc(r.soc)}</div></div>
+      <button class="btn star" type="button" id="save-role" aria-pressed="${saved}">${saved ? "★ Saved" : "☆ Save role"}</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="label">Median pay</span><span class="v mono">${k(med)}</span>
+        <div class="payrange" aria-label="Middle 50% range"><span style="left:${pos(p25)}%;right:${100 - pos(p75)}%"></span><i style="left:calc(${pos(med)}% - 1px)"></i></div>
+        <span class="s mono">${k(p25)}–${k(p75)} middle half</span></div>
+      <div class="stat"><span class="label">Job growth</span><span class="v mono">+${r.growth}%</span><span class="s">2023–33 projection</span></div>
+      <div class="stat"><span class="label">Required degree</span><span class="v" style="font-size:1.05rem;line-height:1.25">${esc(r.degree)}</span></div>
+      <div class="stat"><span class="label">Typical time / cost</span><span class="v" style="font-size:1.05rem;line-height:1.25">${esc(r.typical)}</span></div>
+    </div>
+    <div><span class="label">Top hiring companies</span><div class="companies" style="margin-top:6px">${r.companies.map(c => `<span>${esc(c)}</span>`).join("")}</div></div>
+    <div class="verdict">
+      <div class="ring" style="--p:${a.readiness}" role="img" aria-label="${a.readiness}% ready"><span>${a.readiness}%</span></div>
+      <p><span class="pill ${a.verdict.cls}">${esc(a.verdict.text)}</span><br><span style="display:inline-block;margin-top:6px">${esc(fitText)} You have <strong>${gapCount}</strong> item${gapCount === 1 ? "" : "s"} left, about <strong>${dur(a.months)}</strong> and <strong>${money(a.cost.total)}</strong> beyond your normal tuition to qualify.</span></p>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel" aria-labelledby="gap-h">
+      <div class="sec-head"><h2 id="gap-h">Your gap list</h2><span class="note">Tick items as you finish them</span></div>
+      <div class="group"><h3>Courses</h3>${a.courses.map(c => itemRow(c.code, `<span class="mono" style="font-size:.8rem">${esc(c.code)}</span> ${esc(c.name)}`, `${c.cr} credits · ${esc(c.skill)}`, courseTag(c), c.status === "done")).join("")}</div>
+      <div class="group"><h3>Certifications & exams</h3>${a.certs.map(c => itemRow(c.id, esc(c.name), `${esc(c.issuer)} · ${c.cost ? money(c.cost) : "Free"} · ~${c.hrs} hrs study`, certTag(c), c.status === "done")).join("")}</div>
+      <div class="group"><h3>Experience</h3>${a.ms.map(m => itemRow(m.id, esc(m.name), `~${m.hrs} hrs`, m.status === "done" ? `<span class="tag done">Done</span>` : `<span class="tag rec">To do</span>`, m.status === "done")).join("")}</div>
+    </section>
+
+    <section class="panel" aria-labelledby="route-h">
+      <div class="sec-head"><h2 id="route-h">Your route</h2><span class="note mono">${a.remaining} cr to graduate · ${a.electiveRoom} cr electives</span></div>
+      <ol class="route">${route}</ol>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel" aria-labelledby="cost-h">
+      <div class="sec-head"><h2 id="cost-h">Time & cost to qualify</h2><span class="note">At ${money(S.tuition)} per credit</span></div>
+      <div class="scroll"><table>
+        <thead><tr><th>Beyond your normal tuition</th><th class="num">Cost</th></tr></thead>
+        <tbody>
+          ${costRows.length ? costRows.map(([l, v]) => `<tr><td>${l}</td><td class="num">${money(v)}</td></tr>`).join("") : `<tr><td>Gap courses fit inside your free electives</td><td class="num">$0</td></tr>`}
+          <tr class="total"><td>Total to qualify</td><td class="num">${money(a.cost.total)}</td></tr>
+          ${a.cost.recCerts ? `<tr><td class="note">Optional: recommended certs</td><td class="num note">+${money(a.cost.recCerts)}</td></tr>` : ""}
+        </tbody>
+      </table></div>
+      <div class="scroll" style="margin-top:14px"><table>
+        <thead><tr><th>Timeline</th><th class="num">Time</th></tr></thead>
+        <tbody>
+          <tr><td>Semesters left in your plan</td><td class="num">${a.semLeft}</td></tr>
+          ${a.extraSem ? `<tr><td>Extra semesters for gap courses</td><td class="num">+${a.extraSem}</td></tr>` : ""}
+          ${a.extra150Sem ? `<tr><td>Extra semesters for 150 credits</td><td class="num">+${a.extra150Sem}</td></tr>` : ""}
+          ${a.after ? `<tr><td>${esc(a.after.name)}</td><td class="num">+${a.after.months} mo</td></tr>` : ""}
+          <tr class="total"><td>Until qualified</td><td class="num">${dur(a.months)}</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="guide-h" style="display:grid;gap:18px">
+      <div>
+        <div class="sec-head"><h2 id="guide-h">When to see an advisor</h2></div>
+        <ul class="hooks">${hooks.map(([w, t]) => `<li class="hook"><span class="when">${w}</span><span>${t}</span></li>`).join("")}</ul>
+      </div>
+      <div>
+        <div class="sec-head"><h2>Campus clubs</h2></div>
+        <ul class="clubs">${r.clubs.map(([n, d]) => `<li><strong>${esc(n)}</strong><span>${esc(d)}</span></li>`).join("")}</ul>
+      </div>
+      <div>
+        <div class="sec-head"><h2>Interview prep</h2>${ready ? `<span class="pill ok">Unlocked</span>` : ""}</div>
+        ${ready ? `<ol class="prep">${r.prep.map(q => `<li>${esc(q)}</li>`).join("")}</ol>`
+          : `<div class="locked"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="3" y="8" width="12" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 8V5.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Unlocks at 70% ready or in your final semester. You are at ${a.readiness}%.</span></div>`}
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="cmp-h">
+    <div class="sec-head"><h2 id="cmp-h">Compare saved roles</h2><span class="note">${S.saved.length} saved · personalized to your profile</span></div>
+    ${renderCompare()}
+  </section>`;
+}
+
+function renderCompare() {
+  if (!S.saved.length) return `<p class="empty-state">Save a role with ☆ to compare it here side by side.</p>`;
+  const rows = S.saved.map(id => analyze(ROLE[id], S));
+  const best = (f, dir) => { const v = rows.map(f); const b = dir > 0 ? Math.max(...v) : Math.min(...v); return i => v[i] === b && rows.length > 1 ? "best" : ""; };
+  const bPay = best(a => a.role.pay[1], 1), bGrow = best(a => a.role.growth, 1), bReady = best(a => a.readiness, 1), bMo = best(a => a.months, -1), bCost = best(a => a.cost.total, -1);
+  const line = (label, f, cls) => `<tr><td>${label}</td>${rows.map((a, i) => `<td class="${cls ? cls(i) : ""}">${f(a)}</td>`).join("")}</tr>`;
+  return `<div class="scroll"><table class="cmp">
+    <thead><tr><th></th>${rows.map(a => `<th><button class="btn" type="button" data-role="${a.role.id}" style="font-weight:600">${esc(a.role.title)}</button></th>`).join("")}</tr></thead>
+    <tbody>
+      ${line("Median pay", a => `<span class="mono">${k(a.role.pay[1])}</span>`, bPay)}
+      ${line("Growth", a => `<span class="mono">+${a.role.growth}%</span>`, bGrow)}
+      ${line("Fit with your major", a => ({ direct: "Direct", adjacent: "Adjacent", other: "Off path" })[a.f])}
+      ${line("Ready now", a => `<span class="mono">${a.readiness}%</span>`, bReady)}
+      ${line("Time to qualify", a => `<span class="mono">${dur(a.months)}</span>`, bMo)}
+      ${line("Extra cost", a => `<span class="mono">${money(a.cost.total)}</span>`, bCost)}
+      ${line("Status", a => `<span class="pill ${a.verdict.cls}">${esc(a.verdict.text)}</span>`)}
+      ${line("", a => `<button class="btn" type="button" data-unsave="${a.role.id}">Remove</button>`)}
+    </tbody></table></div>`;
+}
+
+function render() { renderProfile(); renderQuick(); renderMain(); }
+
+/* ---------- Search ---------- */
+const q = $("#q"), list = $("#suggest"), box = $("#search-box");
+let active = 0, matches = [];
+function search(text) {
+  const t = text.trim().toLowerCase();
+  if (!t) return ROLES.slice();
+  return ROLES.map(r => {
+    const title = r.title.toLowerCase();
+    let score = title.startsWith(t) ? 3 : title.includes(t) ? 2 : r.aliases.some(a => a.startsWith(t) || t.includes(a)) ? 1 : 0;
+    return [score, r];
+  }).filter(([s]) => s).sort((a, b) => b[0] - a[0]).map(([, r]) => r);
+}
+function showSuggest() {
+  matches = search(q.value);
+  active = 0;
+  list.innerHTML = matches.length
+    ? matches.map((r, i) => `<li role="option"><button type="button" data-pick="${r.id}" class="${i === 0 ? "active" : ""}"><span>${esc(r.title)}</span><span class="hint mono">${k(r.pay[1])}</span></button></li>`).join("")
+    : `<li class="hint" style="padding:8px 10px">No match in the sample data yet. Try "analyst", "nurse" or "engineer".</li>`;
+  list.hidden = false; box.setAttribute("aria-expanded", "true");
+}
+function hideSuggest() { list.hidden = true; box.setAttribute("aria-expanded", "false"); }
+function pick(id) { S.role = id; save(); q.value = ROLE[id].title; hideSuggest(); render(); }
+q.addEventListener("focus", showSuggest);
+q.addEventListener("input", showSuggest);
+q.addEventListener("keydown", e => {
+  const btns = list.querySelectorAll("button");
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault(); if (!btns.length) return;
+    active = (active + (e.key === "ArrowDown" ? 1 : -1) + btns.length) % btns.length;
+    btns.forEach((b, i) => b.classList.toggle("active", i === active));
+  } else if (e.key === "Enter") { if (matches[active]) pick(matches[active].id); }
+  else if (e.key === "Escape") hideSuggest();
+});
+document.addEventListener("click", e => { if (!box.contains(e.target)) hideSuggest(); });
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-pick],[data-role],[data-unsave],#save-role,#reset");
+  if (!t) return;
+  if (t.dataset.pick) return pick(t.dataset.pick);
+  if (t.dataset.role) { S.role = t.dataset.role; q.value = ""; save(); render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (t.dataset.unsave) { S.saved = S.saved.filter(x => x !== t.dataset.unsave); save(); renderMain(); return; }
+  if (t.id === "save-role") { S.saved = S.saved.includes(S.role) ? S.saved.filter(x => x !== S.role) : [...S.saved, S.role]; save(); renderMain(); return; }
+  if (t.id === "reset") { S = structuredClone(EXAMPLE); save(); q.value = ""; render(); }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.done) {
+    const id = t.dataset.done;
+    S.done = t.checked ? [...new Set([...S.done, id])] : S.done.filter(x => x !== id);
+    S.example = false; save(); renderMain(); return;
+  }
+  const map = { "p-major": ["major", String], "p-year": ["year", String], "p-sem": ["semLeft", Number], "p-credits": ["credits", Number], "p-tuition": ["tuition", Number] };
+  if (map[t.id]) {
+    const [key, cast] = map[t.id];
+    let v = cast(t.value); if (cast === Number) v = Math.max(0, Number.isFinite(v) ? v : 0);
+    S[key] = v;
+    if (key === "year") { S.semLeft = { Freshman: 7, Sophomore: 5, Junior: 3, Senior: 1 }[v]; }
+    S.example = false; save(); render();
+  }
+});
+
+render();
+</script>
+
+</body></html>
