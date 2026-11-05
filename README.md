@@ -2,7 +2,7 @@
 
 CollegePlanet helps UNC Charlotte students organize and track their academic progress in one place: pick a target career, see the courses, certifications and experience it takes, and follow a semester-by-semester roadmap.
 
-**Sprint 1 feature:** Student login ([issue #1](https://github.com/SumiranJ/CollegePlanet/issues/1)).
+**Sprint 1 feature:** Student login ([issue #1](https://github.com/mattfranq-ops/CollegePlanet/issues/1)).
 
 ## Tech stack
 
@@ -18,7 +18,7 @@ CollegePlanet helps UNC Charlotte students organize and track their academic pro
 ## Run the app
 
 ```bash
-git clone https://github.com/SumiranJ/CollegePlanet.git
+git clone https://github.com/mattfranq-ops/CollegePlanet.git
 cd CollegePlanet
 npm install
 npm run dev
