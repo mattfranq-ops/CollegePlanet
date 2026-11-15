@@ -1,7 +1,47 @@
 rules_version = '2';
 
+// CollegePlanet Firestore rules (Sprint 2).
+//
+// The Next.js server talks to Firestore with the Admin SDK, which is trusted and
+// skips these rules; it checks the signed session cookie before every read or
+// write (see lib/repositories). These rules are the second line of defense for
+// any client that connects directly: a signed-in user can reach only their own
+// data, the role catalog is read-only, and everything else is denied.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // Career role catalog, written only by the seed script (Admin SDK).
+    match /roles/{roleId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // A student's profile document.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // Target roles a student saved (user story #3).
+      match /savedRoles/{roleId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId)
+          && request.resource.data.keys().hasOnly(['roleId', 'roleTitle', 'targetTerm', 'note', 'createdAt', 'updatedAt'])
+          && request.resource.data.roleId == roleId
+          && request.resource.data.roleTitle is string
+          && request.resource.data.targetTerm is string
+          && request.resource.data.note is string
+          && request.resource.data.note.size() <= 280;
+      }
+    }
+
+    // Deny anything not matched above.
     match /{document=**} {
       allow read, write: if false;
     }

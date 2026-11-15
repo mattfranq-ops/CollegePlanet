@@ -1,9 +1,29 @@
-.env
-.env*.local
+# Dependencies and build output
 node_modules/
 .next/
 out/
 dist/
-*.log
 coverage/
 *.tsbuildinfo
+*.log
+
+# Environment files: never commit real values. .env.example is the template.
+.env
+.env.*
+!.env.example
+
+# Credentials and keys
+*.pem
+*.key
+*.p12
+serviceAccount*.json
+service-account*.json
+*-firebase-adminsdk-*.json
+firebase-debug*.log
+firestore-debug*.log
+ui-debug*.log
+
+# Local databases and emulator data
+*.db
+*.sqlite
+emulator-data/
