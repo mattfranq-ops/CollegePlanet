@@ -33,3 +33,23 @@ button.secondary { background: var(--surface); color: var(--green); }
 .dashboard header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dashboard header p { color: var(--muted); margin: 0; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+
+/* Saved target roles (Sprint 2, issue #3) */
+.muted { color: var(--muted); margin: 0 0 12px; }
+.form-status { color: var(--green); background: #e6f2ed; border-radius: 8px; padding: 8px 12px; margin: 6px 0; font-size: .9rem; }
+.empty { color: var(--muted); font-style: italic; }
+.saved-list { list-style: none; padding: 0; margin: 12px 0 20px; display: grid; gap: 10px; }
+.saved-item { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.saved-item strong { display: block; }
+.saved-item .term { color: var(--gold); font-size: .85rem; font-weight: 600; }
+.saved-item .note { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
+.saved-item .actions { display: flex; gap: 8px; align-items: flex-start; }
+.saved-item .actions button { margin-top: 0; }
+.saved-item.editing form { display: grid; gap: 6px; width: 100%; }
+.saved-form { display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; max-width: 480px; }
+.saved-form h3 { margin: 0 0 4px; }
+.saved-form label, .saved-item label { font-size: .85rem; font-weight: 600; margin-top: 4px; }
+.saved-form select, .saved-form textarea, .saved-item select, .saved-item textarea { padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: var(--surface); }
+.saved-form [aria-invalid="true"] { border-color: var(--error); }
+.counter { font-size: .75rem; color: var(--muted); justify-self: end; }
+.field-error { color: var(--error); font-size: .85rem; margin: 0; }
