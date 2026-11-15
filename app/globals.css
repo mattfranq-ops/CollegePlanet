@@ -1,0 +1,35 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --ink: #15233b;
+  --muted: #5b6678;
+  --line: #dde2ea;
+  --green: #005035; /* UNC Charlotte green */
+  --gold: #a49665;
+  --error: #b42318;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, "Segoe UI", sans-serif; line-height: 1.5; }
+h1, h2 { line-height: 1.2; margin: 0 0 8px; }
+.eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 600; color: var(--gold); margin: 0 0 6px; }
+
+.login-page { min-height: 100vh; display: grid; grid-template-columns: 1fr minmax(320px, 420px); gap: 48px; align-items: center; max-width: 1040px; margin: 0 auto; padding: 32px 20px; }
+@media (max-width: 760px) { .login-page { grid-template-columns: 1fr; gap: 24px; } }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); color: var(--green); }
+.hero p { color: var(--muted); max-width: 46ch; }
+
+.login-form { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px; display: grid; gap: 8px; }
+.login-form label { font-size: .85rem; font-weight: 600; margin-top: 6px; }
+.login-form input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+.login-form input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+.form-error { color: var(--error); background: #fde8e6; border-radius: 8px; padding: 8px 12px; margin: 6px 0 0; font-size: .9rem; }
+button { font: inherit; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--green); background: var(--green); color: #fff; font-weight: 600; cursor: pointer; margin-top: 8px; }
+button:disabled { opacity: .6; cursor: wait; }
+button.secondary { background: var(--surface); color: var(--green); }
+.divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8rem; margin-top: 8px; }
+.divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+
+.dashboard { max-width: 960px; margin: 0 auto; padding: 32px 20px; display: grid; gap: 20px; }
+.dashboard header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.dashboard header p { color: var(--muted); margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
