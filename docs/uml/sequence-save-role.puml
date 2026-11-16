@@ -1,0 +1,48 @@
+@startuml sequence-save-role
+title Issue #3: student saves a target role (persisted in Firestore)
+autonumber
+skinparam shadowing false
+actor Student
+participant "SavedRoles\n(dashboard UI)" as UI
+participant "POST /api/saved-roles" as API
+participant "SavedRoleRepository" as Repo
+database "Firestore" as DB
+
+Student -> UI : choose role, "qualify by" term, note; click Save role
+UI -> UI : validateSaveRoleInput()
+alt invalid input
+  UI --> Student : show field errors (no request sent)
+else valid
+  UI -> API : POST {roleId, targetTerm, note}\n(cookie: cp_session)
+  API -> API : studentFromRequest() verifies signed session
+  alt no valid session
+    API --> UI : 401 "Your session ended. Log in again."
+  else signed in
+    API -> Repo : saveRole(student, body)
+    Repo -> Repo : validateSaveRoleInput() again on the server
+    Repo -> DB : runTransaction: get roles/{roleId},\nusers/{uid}/savedRoles/{roleId}, users/{uid}
+    alt role not in catalog or bad fields
+      Repo --> API : RepositoryError invalid-input
+      API --> UI : 400 {error, fieldErrors}
+    else already saved
+      Repo --> API : RepositoryError already-exists
+      API --> UI : 409 "You already saved ..."
+    else OK
+      Repo -> DB : set users/{uid} (first time only)\ncreate users/{uid}/savedRoles/{roleId}
+      DB --> Repo : commit
+      Repo -> DB : get saved document
+      Repo --> API : SavedRole
+      API --> UI : 201 {savedRole}
+      UI --> Student : "Saved Data Analyst." and the role appears in the list
+    end
+  end
+end
+
+== Later visit (after logout, server or emulator restart) ==
+Student -> UI : open /dashboard
+UI -> Repo : listSavedRoles(uid) (server component)
+Repo -> DB : query users/{uid}/savedRoles orderBy createdAt
+DB --> Repo : saved roles
+Repo --> UI : SavedRole[]
+UI --> Student : saved roles shown again
+@enduml

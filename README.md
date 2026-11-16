@@ -4,16 +4,20 @@ CollegePlanet helps UNC Charlotte students organize and track their academic pro
 
 **Sprint 1 feature:** Student login ([issue #1](https://github.com/mattfranq-ops/CollegePlanet/issues/1)).
 
+**Sprint 2 feature:** Save target roles to a Firestore database ([SumiranJ/CollegePlanet#3 Form Career Roadmap](https://github.com/SumiranJ/CollegePlanet/issues/3)). Setup: [docs/database-setup.md](docs/database-setup.md).
+
 ## Tech stack
 
 - [Next.js 15](https://nextjs.org/) (App Router) with React 19 and TypeScript
 - `bcryptjs` for password hashing, `jose` for signed session cookies (JWT, HS256)
+- Firebase Firestore (Admin SDK on the server, Emulator Suite for development and tests)
 - Jest and React Testing Library for tests
 
 ## Prerequisites
 
 - Node.js 20 or newer (`node -v`)
 - npm 10 or newer (`npm -v`)
+- Java 11 or newer for the Firestore emulator (`java -version`)
 
 ## Run the app
 
@@ -21,10 +25,13 @@ CollegePlanet helps UNC Charlotte students organize and track their academic pro
 git clone https://github.com/mattfranq-ops/CollegePlanet.git
 cd CollegePlanet
 npm install
-npm run dev
+cp .env.example .env     # then set FIREBASE_PROJECT_ID (see docs/database-setup.md)
+npm run emulators        # terminal 1: Firestore 8085, Auth 9099, UI 4000
+npm run seed             # terminal 2: load the career roles
+npm run dev              # terminal 2
 ```
 
-Open http://localhost:3000. You will see the student login page.
+Open http://localhost:3000. You will see the student login page. After logging in, save a target role on the dashboard; it is still there after you log out, restart the app, or restart the emulators (stop them with Ctrl+C so the data is saved).
 
 ### Demo accounts
 
@@ -46,14 +53,20 @@ SESSION_SECRET=replace-with-a-long-random-string
 ## Run the tests
 
 ```bash
-npm test
+npm test          # starts a temporary Firestore emulator and runs every suite
+npm run lint
 ```
 
-Expected result: `Test Suites: 2 passed` and `Tests: 15 passed`.
+Expected result: `Test Suites: 7 passed` and `Tests: 46 passed`, then `No ESLint warnings or errors`. If `npm run emulators` is already running, use `npm run test:jest` instead.
 
 | Test file | What it checks |
 | --- | --- |
 | `tests/login.test.tsx` | The login form renders, rejects empty fields without calling the server, shows the server's error on wrong credentials, and redirects to `/dashboard` on success |
+| `tests/firestore/savedRoleRepository.test.ts` | Issue #3 against the emulator: saving writes the documents, data survives a new client, update and remove, invalid input, unknown role, duplicate, not found |
+| `tests/firestore/savedRolesApi.test.ts` | The `/api/saved-roles` routes: 201, 400 with field errors, 409, 404, 401 |
+| `tests/firestore/firestoreRules.test.ts` | Security rules: own data only, no signed-out access, field checks, read-only catalog |
+| `tests/savedRoles.test.tsx` | The dashboard form: field errors without a request, success message, server error |
+| `tests/roadmapValidation.test.ts` | Target term and note validation rules |
 | `tests/auth.test.ts` | Input validation rules, correct and incorrect credentials, signed sessions (including a tampered token), and the `POST /api/auth/login` responses (200 with cookie, 401, 400) |
 
 ## Test it by hand
@@ -88,7 +101,17 @@ lib/
   auth.ts                  Demo student accounts and credential check
   validation.ts            Shared form validation rules
   session.ts               Create and verify signed session cookies
+  firebase/admin.ts        Firestore Admin SDK client (server only)
+  repositories/            Data access: SavedRoleRepository, RoleCatalogRepository
+  roadmapValidation.ts     Saved-role validation shared by form and server
+  seed/                    Seed data and seeding function
+app/api/saved-roles/       GET/POST and PATCH/DELETE saved roles
+components/savedRoles.tsx  Dashboard "Your target roles" card
 types/auth.ts              Shared types
+types/roadmap.ts           Firestore document models
+scripts/                   seed.ts, emulators.mjs
+firestore.rules            Security rules
+docs/                      Database setup, AI design review, UML, release notes
 tests/                     Jest tests
 ```
 

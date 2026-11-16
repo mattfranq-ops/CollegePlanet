@@ -8,6 +8,10 @@ import type { Timestamp } from "firebase-admin/firestore";
  *   users/{userId}                         UserProfileDoc    (one per student)
  *   users/{userId}/savedRoles/{roleId}     SavedRoleDoc      (user story #3)
  *
+ * Ownership: every student's data sits under users/{userId}, so security rules and queries key on
+ * the path (idea from the Copilot Phase 1 analysis; see docs/ai-design-review.md section 4).
+ * Not adopted from that analysis: separate profiles/majors collections and a role field.
+ *
  * "Doc" types are exactly what is stored. The plain types without "Doc" are what
  * the rest of the app uses: ids included and timestamps converted to ISO strings,
  * so they can be sent to the browser as JSON.
