@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "jest",
+    "lint": "next lint --max-warnings=0",
+    "test": "firebase emulators:exec --only firestore --project collegeplanet-2e87a \"jest --runInBand\"",
     "test:watch": "jest --watch",
     "emulators": "node scripts/emulators.mjs",
-    "seed": "tsx --env-file=.env scripts/seed.ts"
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "test:jest": "jest --runInBand",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
