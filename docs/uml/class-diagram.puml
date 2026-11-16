@@ -1,0 +1,98 @@
+@startuml class-diagram
+!pragma layout smetana
+title CollegePlanet Sprint 2: Firestore data layer (issue #3 Form Career Roadmap)
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+package "UI (browser)" {
+  class SavedRoles <<React client component>> {
+    - savedRoles: SavedRole[]
+    - fieldErrors: FieldErrors
+    + handleSave(event)
+    + handleUpdate(saved, changes)
+    + handleRemove(saved)
+  }
+}
+
+package "API routes (Next.js server)" {
+  class "/api/saved-roles" as SavedRolesRoute <<route>> {
+    + GET(request): 200 | 401 | 503
+    + POST(request): 201 | 400 | 401 | 409 | 503
+  }
+  class "/api/saved-roles/[roleId]" as SavedRoleRoute <<route>> {
+    + PATCH(request, params): 200 | 400 | 401 | 404
+    + DELETE(request, params): 200 | 401 | 404
+  }
+  class apiHelpers <<module>> {
+    + studentFromRequest(request): StudentRef | null
+    + errorResponse(err): Response
+  }
+}
+
+package "Data access (lib/repositories)" {
+  class SavedRoleRepository {
+    - db: Firestore
+    + listSavedRoles(userId): SavedRole[]
+    + saveRole(student: StudentRef, input): SavedRole
+    + updateSavedRole(userId, roleId, input): SavedRole
+    + removeSavedRole(userId, roleId): void
+  }
+  class RoleCatalogRepository {
+    - db: Firestore
+    + listRoles(): CareerRole[]
+    + getRole(roleId): CareerRole | null
+  }
+  class RepositoryError {
+    + code: invalid-input | not-found | already-exists | unavailable
+    + status: number
+    + fieldErrors?: FieldErrors
+  }
+  class roadmapValidation <<shared module>> {
+    + validateSaveRoleInput(input): Validated
+    + validateUpdateSavedRoleInput(input): Validated
+    + upcomingTerms(): string[]
+  }
+}
+
+package "Firestore models (types/roadmap.ts)" {
+  class CareerRoleDoc <<roles/{roleId}>> {
+    title: string
+    field: string
+    medianPay: number
+    requiredDegree: string
+  }
+  class UserProfileDoc <<users/{userId}>> {
+    username: string
+    name: string
+    email: string
+    major: string
+    createdAt: Timestamp
+    updatedAt: Timestamp
+  }
+  class SavedRoleDoc <<users/{userId}/savedRoles/{roleId}>> {
+    roleId: string
+    roleTitle: string
+    targetTerm: string
+    note: string
+    createdAt: Timestamp
+    updatedAt: Timestamp
+  }
+}
+
+SavedRoles ..> SavedRolesRoute : fetch (JSON)
+SavedRoles ..> SavedRoleRoute : fetch (JSON)
+SavedRoles ..> roadmapValidation : validates before sending
+SavedRolesRoute ..> apiHelpers
+SavedRoleRoute ..> apiHelpers
+SavedRolesRoute --> SavedRoleRepository
+SavedRoleRoute --> SavedRoleRepository
+SavedRoleRepository ..> roadmapValidation
+SavedRoleRepository ..> RepositoryError : throws
+SavedRoleRepository ..> SavedRoleDoc : reads/writes
+SavedRoleRepository ..> UserProfileDoc : creates once
+SavedRoleRepository ..> CareerRoleDoc : checks role exists
+RoleCatalogRepository ..> CareerRoleDoc : reads
+UserProfileDoc "1" *-- "0..*" SavedRoleDoc : subcollection
+CareerRoleDoc "1" <.. "0..*" SavedRoleDoc : roleId
+@enduml

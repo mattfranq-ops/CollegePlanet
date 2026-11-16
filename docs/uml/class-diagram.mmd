@@ -1,0 +1,104 @@
+---
+title: "CollegePlanet Sprint 2: Firestore data layer (issue #3 Form Career Roadmap)"
+---
+classDiagram
+  direction TB
+
+  namespace UI_browser {
+    class SavedRoles {
+      <<React client component>>
+      -SavedRole[] savedRoles
+      -FieldErrors fieldErrors
+      +handleSave(event)
+      +handleUpdate(saved, changes)
+      +handleRemove(saved)
+    }
+  }
+
+  namespace API_routes {
+    class SavedRolesRoute {
+      <<route /api/saved-roles>>
+      +GET(request) 200|401|503
+      +POST(request) 201|400|401|409|503
+    }
+    class SavedRoleRoute {
+      <<route /api/saved-roles/[roleId]>>
+      +PATCH(request, params) 200|400|401|404
+      +DELETE(request, params) 200|401|404
+    }
+    class apiHelpers {
+      <<module>>
+      +studentFromRequest(request) StudentRef
+      +errorResponse(err) Response
+    }
+  }
+
+  namespace Data_access {
+    class SavedRoleRepository {
+      -Firestore db
+      +listSavedRoles(userId) SavedRole[]
+      +saveRole(student, input) SavedRole
+      +updateSavedRole(userId, roleId, input) SavedRole
+      +removeSavedRole(userId, roleId) void
+    }
+    class RoleCatalogRepository {
+      -Firestore db
+      +listRoles() CareerRole[]
+      +getRole(roleId) CareerRole
+    }
+    class RepositoryError {
+      +code invalid-input|not-found|already-exists|unavailable
+      +number status
+      +FieldErrors fieldErrors
+    }
+    class roadmapValidation {
+      <<shared module>>
+      +validateSaveRoleInput(input) Validated
+      +validateUpdateSavedRoleInput(input) Validated
+      +upcomingTerms() string[]
+    }
+  }
+
+  namespace Firestore_models {
+    class CareerRoleDoc {
+      <<roles/roleId>>
+      string title
+      string field
+      number medianPay
+      string requiredDegree
+    }
+    class UserProfileDoc {
+      <<users/userId>>
+      string username
+      string name
+      string email
+      string major
+      Timestamp createdAt
+      Timestamp updatedAt
+    }
+    class SavedRoleDoc {
+      <<users/userId/savedRoles/roleId>>
+      string roleId
+      string roleTitle
+      string targetTerm
+      string note
+      Timestamp createdAt
+      Timestamp updatedAt
+    }
+  }
+
+  SavedRoles ..> SavedRolesRoute : fetch JSON
+  SavedRoles ..> SavedRoleRoute : fetch JSON
+  SavedRoles ..> roadmapValidation : validates before sending
+  SavedRolesRoute ..> apiHelpers
+  SavedRoleRoute ..> apiHelpers
+  SavedRolesRoute --> SavedRoleRepository
+  SavedRoleRoute --> SavedRoleRepository
+  SavedRoleRepository ..> roadmapValidation
+  SavedRoleRepository ..> RepositoryError : throws
+  SavedRoleRepository ..> SavedRoleDoc : reads/writes
+  SavedRoleRepository ..> UserProfileDoc : creates once
+  SavedRoleRepository ..> CareerRoleDoc : checks role exists
+  RoleCatalogRepository ..> CareerRoleDoc : reads
+  UserProfileDoc "1" *-- "0..*" SavedRoleDoc : subcollection
+  CareerRoleDoc "1" <.. "0..*" SavedRoleDoc : roleId
